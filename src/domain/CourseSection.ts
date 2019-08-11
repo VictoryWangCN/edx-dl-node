@@ -18,4 +18,10 @@ export class CourseSection {
     public getSubSections(): Array<CourseSubSection> {
         return this.subSections;
     }
+
+    static buildFromJSON(section: Section): CourseSection {
+        let courseSection = new CourseSection(section.name);
+        section.subSections.forEach(subSection => courseSection.addSubSection(CourseSubSection.buildFromJSON(subSection)));
+        return courseSection;
+    }
 }

@@ -1,29 +1,22 @@
 import {Browser, launch} from "puppeteer";
+import {openPage} from "./index";
 
 export class EdxHolder {
-    private static browser: Promise<Browser> = launch({
+    private static readonly browser: Promise<Browser> = launch({
         headless: false,
-        ignoreDefaultArgs: ["--enable-automation"],
-        args: ["--proxy-server=socks5://127.0.0.1:1080"]
+        ignoreDefaultArgs: ["--enable-automation", "about:blank"],
+        args: ["--proxy-server=socks5://localhost:8087"]
     });
 
-    constructor(private readonly username: string, private readonly password: string) {}
+    readonly browser: Promise<Browser>;
 
-    public async login(): Promise<Browser> {
+    constructor(private readonly username: string, private readonly password: string) {
+        this.browser = this.buildBrowser();
+    }
+
+    private async buildBrowser(): Promise<Browser> {
         let browser: Browser = await EdxHolder.browser;
-        let page = await browser.newPage();
-
-        await page.setRequestInterception(true);
-        page.on("request", (request) => {
-            const filterResources = ['image', 'stylesheet', 'font'];
-            if (filterResources.indexOf(request.resourceType()) !== -1) {
-                request.abort();
-            } else {
-                request.continue();
-            }
-        });
-
-        await page.goto("https://courses.edx.org/login", {waitUntil: "domcontentloaded"});
+        let page = await openPage(browser, "https://courses.edx.org/login");
 
         await page.type("#login-email", this.username);
         await page.type("#login-password", this.password);
@@ -32,7 +25,12 @@ export class EdxHolder {
 
         await page.waitForNavigation({waitUntil: "domcontentloaded", timeout: 10000});
 
+        await page.close();
         return browser;
+    }
+
+    public getBrowser() {
+        return this.browser;
     }
 }
 

@@ -5,7 +5,7 @@ export class CourseSubSection {
 
     constructor(private readonly name: string) {}
 
-    public addBlocks(section: CourseBlock): CourseSubSection {
+    public addBlock(section: CourseBlock): CourseSubSection {
         this.blocks.push(section);
         return this;
     }
@@ -17,5 +17,11 @@ export class CourseSubSection {
 
     public getBlocks(): Array<CourseBlock> {
         return this.blocks;
+    }
+
+    static buildFromJSON(subSection: SubSection) {
+        let courseSubSection = new CourseSubSection(subSection.name);
+        subSection.blocks.forEach(block => courseSubSection.addBlock(new CourseBlock(block.name, block.link)));
+        return courseSubSection;
     }
 }

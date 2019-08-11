@@ -5,6 +5,13 @@ export class CourseStructure {
 
     constructor(private readonly name: string) {}
 
+    static buildFromJSON(name: string, sections: Array<Section>): CourseStructure {
+        // WTF reduce && generic in class level ........
+        let structure = new CourseStructure(name);
+        sections.forEach(section => structure.addSection(CourseSection.buildFromJSON(section)));
+        return structure;
+    }
+
     public addSection(section: CourseSection): CourseStructure {
         this.sections.push(section);
         return this;
