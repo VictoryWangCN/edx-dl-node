@@ -1,6 +1,6 @@
 import {CourseStructure} from "./domain/CourseStructure";
 import {EdxHolder} from "./EdxHolder";
-import {BlockContent, BinaryJpegBlock, VideoBlock, NotesBlock} from "./domain/BlockContent";
+import {BlockContent, BinaryJpegBlock, VideoBlock, NotesBlock, YoutubeBlock} from "./domain/BlockContent";
 import {CourseBlock} from "./domain/CourseBlock";
 import {openPage} from "./index";
 import {Page} from "puppeteer";
@@ -33,6 +33,7 @@ export class DetailContentSpider {
 
         let extractors = [
             this.extractRegularVideo(page),
+            this.extractYoutube(page),
             this.extractScreenShot(page),
             this.extractNotes(page)
         ].map(it => this.extractBox(it, block));
@@ -66,6 +67,14 @@ export class DetailContentSpider {
         return new VideoBlock(video, srt);
     }
 
+    private async extractYoutube(page: Page): Promise<YoutubeBlock> {
+        const selector = ".video-player iframe";
+        await page.waitForSelector(selector, {timeout: 5000});
+        const video = await page.$eval(selector, el => (el as HTMLIFrameElement).src);
+
+        return new YoutubeBlock(video);
+    }
+
     private async extractScreenShot(page: Page): Promise<BinaryJpegBlock | NotesBlock> {
         const selector = ".vert-mod .xblock-student_view-html";
 
@@ -75,11 +84,11 @@ export class DetailContentSpider {
 
         let length = await page.$eval(notesSelector, el => (<HTMLElement>el).innerText.trim().length);
 
-        if (length <= 20) {
+        if (length <= 21) {
             throw new Error("Too small, guess is slides")
         }
 
-        let buffer = await handle.screenshot({type: "jpeg", encoding: "binary"});
+        let buffer = await handle.screenshot({type: "png", encoding: "binary"});
 
         return new BinaryJpegBlock(buffer);
 

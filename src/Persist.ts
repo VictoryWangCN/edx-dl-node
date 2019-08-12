@@ -2,7 +2,7 @@ import * as fs from "fs";
 
 import {CourseStructure} from "./domain/CourseStructure";
 import {EdxHolder} from "./EdxHolder";
-import {BinaryJpegBlock, BlockContent, NotesBlock, VideoBlock} from "./domain/BlockContent";
+import {BinaryJpegBlock, BlockContent, NotesBlock, VideoBlock, YoutubeBlock} from "./domain/BlockContent";
 import {CourseSubSection} from "./domain/CourseSubSection";
 import {CourseSection} from "./domain/CourseSection";
 import filenamify = require("filenamify");
@@ -89,6 +89,10 @@ export class Persist {
                 console.log("\t\t\t\t" + (<VideoBlock>content).srt);
                 return;
             }
+            case YoutubeBlock.TYPE: {
+                console.log("\t\t\t\t" + (<YoutubeBlock>content).video);
+                return;
+            }
             case BinaryJpegBlock.TYPE: {
                 fs.writeFileSync(`${blockFolder}/${idx}.jpeg`, (<BinaryJpegBlock>content).buffer);
                 return;
@@ -105,7 +109,7 @@ export class Persist {
 
     private static createFolderIfNotExist(folder: string) {
         if (!fs.existsSync(folder)) {
-            fs.mkdirSync(folder);
+            fs.mkdirSync(folder, {recursive: true});
         }
     }
 }

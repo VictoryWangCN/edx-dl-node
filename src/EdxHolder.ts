@@ -3,7 +3,7 @@ import {openPage} from "./index";
 
 export class EdxHolder {
     private static readonly browser: Promise<Browser> = launch({
-        headless: false,
+        headless: true,
         ignoreDefaultArgs: ["--enable-automation", "about:blank"],
         args: ["--proxy-server=socks5://localhost:8087"]
     });
