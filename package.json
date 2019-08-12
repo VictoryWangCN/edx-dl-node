@@ -6,6 +6,7 @@
   "dependencies": {
     "@types/node": "^12.7.1",
     "@types/puppeteer": "^1.19.0",
+    "aria2": "^4.0.3",
     "copyfiles": "^2.1.1",
     "filenamify": "^4.1.0",
     "puppeteer": "^1.19.0"

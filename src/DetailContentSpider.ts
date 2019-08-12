@@ -1,6 +1,6 @@
 import {CourseStructure} from "./domain/CourseStructure";
 import {EdxHolder} from "./EdxHolder";
-import {BlockContent, BinaryJpegBlock, VideoBlock, NotesBlock, YoutubeBlock} from "./domain/BlockContent";
+import {BlockContent, BinaryPNGBlock, VideoBlock, NotesBlock, YoutubeBlock} from "./domain/BlockContent";
 import {CourseBlock} from "./domain/CourseBlock";
 import {openPage} from "./index";
 import {Page} from "puppeteer";
@@ -15,7 +15,7 @@ export class DetailContentSpider {
         let allTasks = this.structure.getSections().flatMap(section => section.getSubSections())
             .flatMap(subSection => subSection.getBlocks());
 
-        let chunkTasks = DetailContentSpider.chunkTask(allTasks, 6);
+        let chunkTasks = DetailContentSpider.chunkTask(allTasks, 5);
 
         for (let i = 0; i < chunkTasks.length; i++) {
             let subTasks = chunkTasks[i].map(x => this.populateBlockContent(x));
@@ -75,10 +75,10 @@ export class DetailContentSpider {
         return new YoutubeBlock(video);
     }
 
-    private async extractScreenShot(page: Page): Promise<BinaryJpegBlock | NotesBlock> {
+    private async extractScreenShot(page: Page): Promise<BinaryPNGBlock> {
         const selector = ".vert-mod .xblock-student_view-html";
 
-        let handle = await page.waitForSelector(selector, {timeout: 5000});
+        let handle = await page.waitForSelector(selector, {timeout: 8000});
 
         let notesSelector = `${selector} .edx-notes-wrapper-content`;
 
@@ -90,7 +90,7 @@ export class DetailContentSpider {
 
         let buffer = await handle.screenshot({type: "png", encoding: "binary"});
 
-        return new BinaryJpegBlock(buffer);
+        return new BinaryPNGBlock(buffer);
 
     }
 
@@ -98,7 +98,7 @@ export class DetailContentSpider {
         const selector = ".vert-mod .xblock-student_view-html";
 
         let notesSelector = `${selector} .edx-notes-wrapper-content p a`;
-        await page.waitForSelector(notesSelector, {timeout: 2000});
+        await page.waitForSelector(notesSelector, {timeout: 4000});
 
         let notes = await page.$$eval(notesSelector, els => els.map(el => {
             let linkEl = el as HTMLLinkElement;
@@ -124,7 +124,6 @@ export class DetailContentSpider {
 
         for (let index = 0; index < taskLength; index += bunchSize) {
             let part = tasks.slice(index, index + bunchSize);
-            // Do something if you want with the group
             ret.push(part);
         }
 

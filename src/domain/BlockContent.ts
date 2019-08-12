@@ -18,11 +18,11 @@ class YoutubeBlock extends BlockContent {
     }
 }
 
-class BinaryJpegBlock extends BlockContent {
-    static TYPE: string = "BINARY_JPEG";
+class BinaryPNGBlock extends BlockContent {
+    static TYPE: string = "BINARY_PNG";
 
     constructor(readonly buffer: Buffer) {
-        super(BinaryJpegBlock.TYPE)
+        super(BinaryPNGBlock.TYPE)
     }
 
 }
@@ -37,7 +37,7 @@ class NotesBlock extends BlockContent {
 
 export {
     BlockContent,
-    BinaryJpegBlock,
+    BinaryPNGBlock,
     NotesBlock,
     VideoBlock,
     YoutubeBlock

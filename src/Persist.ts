@@ -2,9 +2,10 @@ import * as fs from "fs";
 
 import {CourseStructure} from "./domain/CourseStructure";
 import {EdxHolder} from "./EdxHolder";
-import {BinaryJpegBlock, BlockContent, NotesBlock, VideoBlock, YoutubeBlock} from "./domain/BlockContent";
+import {BinaryPNGBlock, BlockContent, NotesBlock, VideoBlock, YoutubeBlock} from "./domain/BlockContent";
 import {CourseSubSection} from "./domain/CourseSubSection";
 import {CourseSection} from "./domain/CourseSection";
+import {Aria2Box} from "./Aria2Box";
 import filenamify = require("filenamify");
 
 export class Persist {
@@ -85,20 +86,29 @@ export class Persist {
     private static persistContent(content: BlockContent, blockFolder: string, idx: number) {
         switch (content.type) {
             case VideoBlock.TYPE: {
+                Aria2Box.addTask((<VideoBlock>content).video, blockFolder);
+                Aria2Box.addTask((<VideoBlock>content).srt, blockFolder);
                 console.log("\t\t\t\t" + (<VideoBlock>content).video);
                 console.log("\t\t\t\t" + (<VideoBlock>content).srt);
                 return;
             }
             case YoutubeBlock.TYPE: {
+                fs.writeFileSync(`${blockFolder}/youtube_${idx}.txt`, (<YoutubeBlock>content).video);
                 console.log("\t\t\t\t" + (<YoutubeBlock>content).video);
                 return;
             }
-            case BinaryJpegBlock.TYPE: {
-                fs.writeFileSync(`${blockFolder}/${idx}.jpeg`, (<BinaryJpegBlock>content).buffer);
+            case BinaryPNGBlock.TYPE: {
+                fs.writeFileSync(`${blockFolder}/${idx}.png`, (<BinaryPNGBlock>content).buffer);
                 return;
             }
             case NotesBlock.TYPE: {
-                console.log("\t\t\t\t" + JSON.stringify(Array.from((<NotesBlock>content).notes.entries())));
+                (<NotesBlock>content).notes.forEach((k ,v) => {
+                    let noteFolder = `${blockFolder}/${filenamify(v)}`;
+                    Persist.createFolderIfNotExist(noteFolder);
+
+                    fs.writeFileSync(`${noteFolder}/target.txt`, k);
+                    Aria2Box.addTask(v, noteFolder);
+                });
                 return;
             }
             default: {
