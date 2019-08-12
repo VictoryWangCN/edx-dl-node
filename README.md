@@ -1,6 +1,11 @@
 # edx-dl
 Node Version
 
+1. download video, slides and code examples
+2. youtube path
+3. screen shot for html body
+4. resources in html body
+
 ## Usage
 
 ```
